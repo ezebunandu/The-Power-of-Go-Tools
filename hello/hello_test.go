@@ -7,10 +7,12 @@ import (
 	"github.com/ezebunandu/hello"
 )
 
-func TestPrintTo_PrintsHelloMessageToGivenWriter(t *testing.T) {
+func TestPrintPrintsHelloMessageToOutput(t *testing.T) {
 	t.Parallel()
 	buf := new(bytes.Buffer)
-	hello.PrintTo(buf) // prints hello message to buf
+	p := hello.NewPrinter()
+	p.Output = buf
+	p.Print()
 	want := "Hello, World!\n"
 	got := buf.String()
 
