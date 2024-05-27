@@ -3,6 +3,7 @@ package count
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +12,7 @@ import (
 type counter struct {
 	input  io.Reader
 	output io.Writer
+	files  []io.Reader
 }
 
 type option func(c *counter) error
@@ -40,11 +42,15 @@ func WithInputFromArgs(args []string) option {
 		if len(args) < 1 {
 			return nil
 		}
-		f, err := os.Open(args[0])
-		if err != nil {
-			return err
+		c.files = make([]io.Reader, len(args))
+		for i, path := range args {
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			c.files[i] = f
 		}
-		c.input = f
+		c.input = io.MultiReader(c.files...)
 		return nil
 	}
 }
@@ -72,13 +78,32 @@ func (c *counter) Lines() int {
 	return lines
 }
 
+func (c *counter) Words() int {
+	words := 0
+	input := bufio.NewScanner(c.input)
+	input.Split(bufio.ScanWords)
+	for input.Scan() {
+		words++
+	}
+	for _, f := range c.files {
+		f.(io.Closer).Close()
+	}
+	return words
+}
+
 func Main() int {
+	lineMode := flag.Bool("lines", false, "Count lines, not words")
+	flag.Parse()
 	c, err := NewCounter(
-		WithInputFromArgs(os.Args[1:]))
+		WithInputFromArgs(flag.Args()))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	fmt.Println(c.Lines())
+	if *lineMode {
+		fmt.Println(c.Lines())
+	} else {
+		fmt.Println(c.Words())
+	}
 	return 0
 }
