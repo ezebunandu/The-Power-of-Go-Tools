@@ -93,7 +93,16 @@ func (c *counter) Words() int {
 
 func Main() int {
 	lineMode := flag.Bool("lines", false, "Count lines, not words")
+	flag.Usage = func() {
+		fmt.Printf("Usage: %s [-lines] [files...]\n", os.Args[0])
+		fmt.Println("Counts words (or lines) from stdin (or files).")
+		fmt.Println("Flags: ")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
+
+	fmt.Println("Counts words (or lines) from stdin (or files).")
+	fmt.Print("Flags:")
 	c, err := NewCounter(
 		WithInputFromArgs(flag.Args()))
 	if err != nil {
