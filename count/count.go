@@ -123,7 +123,7 @@ func Main() int {
 		return 1
 	}
 	if *lineMode && *byteMode {
-		err := fmt.Errorf("Cannot try to count lines and bytes")
+		err := fmt.Errorf("cannot try to count lines and bytes")
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
