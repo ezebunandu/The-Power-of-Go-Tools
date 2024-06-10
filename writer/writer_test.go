@@ -62,3 +62,24 @@ func TestWriteToFile_ClobbersExistingFile(t *testing.T) {
 		t.Fatal(cmp.Diff(want, got))
 	}
 }
+
+func TestWriteToFile_ChangesPermsOnExistingFile(t *testing.T) {
+	t.Parallel()
+	path := t.TempDir() + "/perms_test.txt"
+	err := os.WriteFile(path, []byte{}, 0o644)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = writer.WriteToFile(path, []byte{1, 3, 4})
+	if err != nil {
+		t.Fatal(err)
+	}
+	stat, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	perm := stat.Mode().Perm()
+	if perm != 0o600 {
+		t.Errorf("want file mode 0o600, got 0o%o", perm)
+	}
+}
