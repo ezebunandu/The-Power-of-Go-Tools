@@ -6,7 +6,20 @@ import (
 
 	"github.com/ezebunandu/writer"
 	"github.com/google/go-cmp/cmp"
+	"github.com/rogpeppe/go-internal/testscript"
 )
+
+func TestMain(m *testing.M) {
+	os.Exit(testscript.RunMain(m, map[string]func() int{
+		"writefile": writer.Main,
+	}))
+}
+
+func Test(t *testing.T) {
+	testscript.Run(t, testscript.Params{
+		Dir: "testdata/script",
+	})
+}
 
 func TestWriteToFile_WritesGivenDataToFile(t *testing.T) {
 	t.Parallel()
