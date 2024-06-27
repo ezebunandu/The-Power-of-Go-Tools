@@ -25,7 +25,7 @@ func TestFilesCorrectlyListsFilesInTree(t *testing.T) {
 	}
 }
 
-func TestFilesCorrectlyListFilesInTree(t *testing.T) {
+func TestFilesCorrectlyListFilesInMapFS(t *testing.T) {
 	t.Parallel()
 	fsys := fstest.MapFS{
 		"file.go":                {},
