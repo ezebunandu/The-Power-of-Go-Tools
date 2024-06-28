@@ -21,7 +21,7 @@ func TestFilesOlderThan25DaysCorrectlyListFilesInMapFS(t *testing.T) {
 	}
 	want := []string{
 		"subfolder/subfolder.go",
-		"subfolder/subfolder.go",
+		"subfolder2/file.go",
 	}
 	got := older.Files(fsys, 10*time.Second)
 	if !cmp.Equal(want, got) {
