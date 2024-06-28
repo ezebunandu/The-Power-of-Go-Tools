@@ -1,4 +1,4 @@
-module github.com/ezebunandu/findFiles
+module github.com/ezebunandu/older
 
 go 1.22.4
 
