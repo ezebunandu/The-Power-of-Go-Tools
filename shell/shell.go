@@ -19,41 +19,49 @@ func CmdFromString(input string) (*exec.Cmd, error) {
 }
 
 type Session struct {
-	Stdin  io.Reader
-	Stdout io.Writer
-	Stderr io.Writer
-	DryRun bool
+	Stdin      io.Reader
+	Stdout     io.Writer
+	Stderr     io.Writer
+	DryRun     bool
+	Transcript io.Writer
 }
 
 func NewSession(in io.Reader, out, errs io.Writer) *Session {
-	return &Session{Stdin: in, Stdout: out, Stderr: errs, DryRun: false}
+	return &Session{Stdin: in, Stdout: out, Stderr: errs, DryRun: false, Transcript: io.Discard}
 }
 
 func (s *Session) Run() {
-	fmt.Fprintf(s.Stdout, "> ")
+	stdout := io.MultiWriter(s.Stdout, s.Transcript)
+	stderr := io.MultiWriter(s.Stderr, s.Transcript)
+	fmt.Fprintf(stdout, "> ")
 	input := bufio.NewScanner(s.Stdin)
 	for input.Scan() {
 		line := input.Text()
 		cmd, err := CmdFromString(line)
 		if err != nil {
-			fmt.Fprintf(s.Stdout, "> ")
+			fmt.Fprintf(stdout, "> ")
 			continue
 		}
 		if s.DryRun {
-			fmt.Fprintf(s.Stdout, "%s\n", line)
+			fmt.Fprintf(stdout, "%s\n", line)
 			continue
 		}
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			fmt.Fprintln(s.Stderr, "error:", err)
+			fmt.Fprintln(stderr, "error:", err)
 		}
-		fmt.Fprintf(s.Stdout, "%s> ", output)
+		fmt.Fprintf(stdout, "%s> ", output)
 	}
-	fmt.Fprintln(s.Stdout, "\nBe seeing you!")
+	fmt.Fprintln(stdout, "\nBe seeing you!")
 }
 
 func Main() int {
 	session := NewSession(os.Stdin, os.Stdout, os.Stderr)
+	transcript, err := os.Create("transcript.txt")
+	if err != nil {
+		return 1
+	}
+	defer transcript.Close()
 	session.Run()
 	return 0
 }

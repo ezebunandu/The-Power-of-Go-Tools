@@ -36,9 +36,11 @@ func TestCmdFromString_ErrorsOnEmptyInput(t *testing.T) {
 func TestNewSession_CreatesExpectedSession(t *testing.T) {
 	t.Parallel()
 	want := shell.Session{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdin:      os.Stdin,
+		Stdout:     os.Stdout,
+		Stderr:     os.Stderr,
+		DryRun:     false,
+		Transcript: io.Discard,
 	}
 	got := *shell.NewSession(os.Stdin, os.Stdout, os.Stderr)
 	if want != got {
@@ -46,7 +48,7 @@ func TestNewSession_CreatesExpectedSession(t *testing.T) {
 	}
 }
 
-func TestRun_ProducesExpectedOutput(t *testing.T){
+func TestRun_ProducesExpectedOutput(t *testing.T) {
 	t.Parallel()
 	in := strings.NewReader("echo hello\n\n")
 	out := new(bytes.Buffer)
@@ -54,7 +56,22 @@ func TestRun_ProducesExpectedOutput(t *testing.T){
 	session.Run()
 	want := "> hello\n> > \nBe seeing you!\n"
 	got := out.String()
-	if !cmp.Equal(want, got){
+	if !cmp.Equal(want, got) {
 		t.Errorf(cmp.Diff(want, got))
+	}
+}
+
+func TestRun_ProducesExpectedTranscript(t *testing.T) {
+	t.Parallel()
+	in := strings.NewReader("echo hello\n\n")
+	transcript := new(bytes.Buffer)
+	session := shell.NewSession(in, io.Discard, io.Discard)
+	session.DryRun = true
+	session.Transcript = transcript
+	session.Run()
+	want := "> echo hello\n> \nBe seeing you!\n"
+	got := transcript.String()
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
 	}
 }
