@@ -2,6 +2,7 @@ package pipeline_test
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 
 	"github.com/ezebunandu/pipeline"
@@ -21,5 +22,18 @@ func TestStdoutPrintsMessageToOutput(t *testing.T) {
 	got := buf.String()
 	if !cmp.Equal(want, got) {
 		t.Errorf("want %q, got %q", want, got)
+	}
+}
+
+func TestStdoutPrintsNothingOnError(t *testing.T) {
+	t.Parallel()
+	p := pipeline.FromString("Hello, world\n")
+	p.Error = errors.New("silly billy")
+	buf := new(bytes.Buffer)
+	p.Output = buf
+	p.Stdout()
+	got := buf.String()
+	if got != "" {
+		t.Errorf("want no output from Stdout after an error, got %q", got)
 	}
 }

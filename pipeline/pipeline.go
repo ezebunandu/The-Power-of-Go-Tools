@@ -18,5 +18,8 @@ func FromString(s string) *Pipeline {
 }
 
 func (p *Pipeline) Stdout() {
+	if p.Error != nil {
+		return
+	}
 	io.Copy(p.Output, p.Reader)
 }
