@@ -24,6 +24,16 @@ func FromString(s string) *Pipeline {
 	return p
 }
 
+func FromFile(pathname string) *Pipeline {
+	f, err := os.Open(pathname)
+	if err != nil {
+		return &Pipeline{Error: err}
+	}
+	p := New()
+	p.Reader = f
+	return p
+}
+
 func (p *Pipeline) Stdout() {
 	if p.Error != nil {
 		return
