@@ -1,6 +1,7 @@
 package kv_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/ezebunandu/kv"
@@ -77,5 +78,40 @@ func TestSaveSavesDataPersistently(t *testing.T) {
 	}
 	if v, _ := s2.Get("C"); v != "3" {
 		t.Errorf("want C=3, got %s", v)
+	}
+}
+
+func TestOpenStore_ErrorsWhenPathUnreadable(t *testing.T) {
+	t.Parallel()
+	path := t.TempDir() + "/unreadable.store"
+	if _, err := os.Create(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(path, 0o000); err != nil {
+		t.Fatal(err)
+	}
+	_, err := kv.OpenStore(path)
+	if err == nil {
+		t.Fatal("should return error because path does not exist")
+	}
+}
+
+func TestOpenStore_ReturnsErrorOnInvalidData(t *testing.T) {
+	t.Parallel()
+	_, err := kv.OpenStore("testdata/invalid.store")
+	if err == nil {
+		t.Fatal("should return error on invalid data")
+	}
+}
+
+func TestSaveErrorsWhenPathUnwritable(t *testing.T) {
+	t.Parallel()
+	s, err := kv.OpenStore("bogus/unwritable.store")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = s.Save()
+	if err == nil {
+		t.Fatal("should return error on unwritable path")
 	}
 }
