@@ -90,17 +90,15 @@ func TestOpenStore_ErrorsWhenPathUnreadable(t *testing.T) {
 	if err := os.Chmod(path, 0o000); err != nil {
 		t.Fatal(err)
 	}
-	_, err := kv.OpenStore(path)
-	if err == nil {
-		t.Fatal("should return error because path does not exist")
+	if _, err := kv.OpenStore(path); err == nil {
+		t.Fatal("should return error because path is unreadable")
 	}
 }
 
 func TestOpenStore_ReturnsErrorOnInvalidData(t *testing.T) {
 	t.Parallel()
-	_, err := kv.OpenStore("testdata/invalid.store")
-	if err == nil {
-		t.Fatal("should return error on invalid data")
+	if _, err := kv.OpenStore("testdata/invalid.store"); err == nil {
+		t.Fatal(err)
 	}
 }
 
