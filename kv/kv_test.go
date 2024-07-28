@@ -108,8 +108,7 @@ func TestSaveErrorsWhenPathUnwritable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = s.Save()
-	if err == nil {
-		t.Fatal("should return error on unwritable path")
+	if err = s.Save(); err == nil {
+		t.Fatal("should return error when path unwritable")
 	}
 }
