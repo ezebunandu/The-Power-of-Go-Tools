@@ -26,3 +26,23 @@ func TestParsePmsetOutput_GetsChargePercent(t *testing.T) {
 	}
 
 }
+
+func TestToJSON_GivesExpectedJSON(t *testing.T) {
+	t.Parallel()
+	batt := battery.Battery{
+		Name:             "InternalBatttery-0",
+		ID:               10811564,
+		ChargePercent:    100,
+		TimeToFullCharge: "0.00",
+		Present:          true,
+	}
+	wantBytes, err := os.ReadFile("testdata/battery.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := string(wantBytes)
+	got := batt.ToJSON()
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
