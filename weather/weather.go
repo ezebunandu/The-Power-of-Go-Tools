@@ -21,6 +21,9 @@ func ParseResponse(data []byte) (Conditions, error) {
 	if err != nil {
 		return Conditions{}, fmt.Errorf("invalid API response %s: %w", data, err)
 	}
+	if len(resp.Weather) < 1 {
+		return Conditions{}, fmt.Errorf("API response has an emtpy weather field: %s", resp)
+	}
 	conditions := Conditions{
 		Summary: resp.Weather[0].Main,
 	}
