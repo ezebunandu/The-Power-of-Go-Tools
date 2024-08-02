@@ -9,15 +9,14 @@ import (
 	"github.com/ezebunandu/weather"
 )
 
-const BaseUrl = "https://api.openweathermap.org/"
-
 func main() {
 	key := os.Getenv("OPENWEATHERMAP_API_KEY")
 	if key == "" {
 		fmt.Fprintln(os.Stderr, "Please set the environment variable OPENWEATHER_API_KEY.")
 		os.Exit(1)
 	}
-	URL := fmt.Sprintf("%s/data/2.5/weather?q=Calgary,CA&appid=%s", BaseUrl, key)
+	location := "Calgary,CA"
+	URL := weather.FormatUrl(weather.BaseURL, location, key)
 	resp, err := http.Get(URL)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)

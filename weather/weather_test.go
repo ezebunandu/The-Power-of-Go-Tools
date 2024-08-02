@@ -45,3 +45,15 @@ func TestParseResponse_ReturnsErrorGivenInvalidJSON(t *testing.T) {
 		t.Error("want error when parsing invalid response, got nil")
 	}
 }
+
+func TestFormatUrl_ReturnsFormattedUrl(t *testing.T) {
+	t.Parallel()
+	baseURL := weather.BaseURL
+	location := "Calgary,CA"
+	key := "dummyAPIKey"
+	want := "https://api.openweathermap.org/data/2.5/weather?q=Calgary,CA&appid=dummyAPIKey"
+	got := weather.FormatUrl(baseURL, location, key)
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}

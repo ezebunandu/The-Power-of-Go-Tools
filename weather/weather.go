@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+const BaseURL = "https://api.openweathermap.org"
+
 type Conditions struct {
 	Summary string `json:"summary"`
 }
@@ -28,4 +30,8 @@ func ParseResponse(data []byte) (Conditions, error) {
 		Summary: resp.Weather[0].Main,
 	}
 	return conditions, nil
+}
+
+func FormatUrl(baseURL, location, key string) string {
+	return fmt.Sprintf("%s/data/2.5/weather?q=%s&appid=%s", baseURL, location, key)
 }
